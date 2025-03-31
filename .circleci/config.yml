@@ -48,6 +48,5 @@ jobs:
 
 workflows:
   test-all:
-    fail_fast: true
     jobs:
       - test
