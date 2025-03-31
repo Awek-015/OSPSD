@@ -1,0 +1,16 @@
+[project]
+name = "mail-gmail-impl"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "google-api-python-client>=2.146.0",
+    "google-auth-oauthlib>=1.2.1",
+    "google-auth>=2.35.0",
+    "html2text>=2024.2.26",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
