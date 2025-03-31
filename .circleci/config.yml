@@ -1,42 +1,56 @@
 version: 2.1
 
 orbs:
-  python: circleci/python@1.2
+  python: circleci/python@2.1
 
 commands:
   setup-env:
     steps:
       - checkout
+      - python/install-packages:
+          pkg-manager: pip
+          packages:
+            - uv
       - run:
-          name: Setup Python and install dependencies
+          name: Setup environment with uv
           command: |
-            pip install uv
             uv venv
             . .venv/bin/activate
-            uv pip install --dev
+            uv pip install ruff mypy pytest pytest-cov
             uv pip install -e mail_api
             uv pip install -e mail_gmail_impl
             uv pip install -e tests
 
 jobs:
+  lint:
+    docker:
+      - image: cimg/python:3.11
+    steps:
+      - setup-env
+      - run:
+          name: Run ruff linter
+          command: |
+            . .venv/bin/activate
+            ruff check .
+      - run:
+          name: Run type checking with mypy
+          command: |
+            . .venv/bin/activate
+            mypy mail_api/ mail_gmail_impl/ tests/
+
   test:
     docker:
       - image: cimg/python:3.11
     steps:
       - setup-env
       - run:
-          name: Run static analysis (ruff & mypy)
-          command: |
-            . .venv/bin/activate
-            ruff check .
-            mypy mail_api/ mail_gmail_impl/
-      - run:
           name: Run tests with coverage
           command: |
             . .venv/bin/activate
             mkdir -p test-results
-            pytest tests/src/tests \
-              --cov=mail_api --cov=mail_gmail_impl \
+            pytest tests/src/tests/__init__.py \
+              --cov=mail_api \
+              --cov=mail_gmail_impl \
               --junitxml=test-results/results.xml
             coverage report -m
             coverage html -d coverage-report
@@ -50,6 +64,8 @@ jobs:
           destination: coverage-html
 
 workflows:
-  test-all:
+  version: 2
+  lint-and-test:
     jobs:
+      - lint
       - test
