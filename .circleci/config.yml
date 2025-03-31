@@ -12,7 +12,6 @@ commands:
           command: |
             pip install uv
             uv venv
-            . .venv/bin/activate
             uv pip install --group dev
             uv pip install -e mail_api
             uv pip install -e mail_gmail_impl
@@ -27,19 +26,17 @@ jobs:
       - run:
           name: Run static analysis (ruff & mypy)
           command: |
-            . .venv/bin/activate
-            ruff check .
-            mypy mail_api mail_gmail_impl
+            uv run ruff check .
+            uv run mypy mail_api mail_gmail_impl
       - run:
           name: Run tests with coverage
           command: |
-            . .venv/bin/activate
             mkdir -p test-results
-            pytest tests/src/tests \
+            uv run pytest tests/src/tests \
               --cov=mail_api --cov=mail_gmail_impl \
               --junitxml=test-results/results.xml
-            coverage report -m
-            coverage html -d coverage-report
+            uv run coverage report -m
+            uv run coverage html -d coverage-report
       - store_test_results:
           path: test-results
       - store_artifacts:
