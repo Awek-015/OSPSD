@@ -19,3 +19,11 @@ build-backend = "hatchling.build"
 [tool.uv.sources]
 mail-api = { workspace = true }
 mail-gmail-impl = { workspace = true }
+
+# 添加包配置，解决"Unable to determine which files to ship"错误
+[tool.hatch.build.targets.wheel]
+packages = ["src/tests"]
+
+# 确保src目录被视为包源目录
+[tool.hatch.build]
+packages = ["src"]
