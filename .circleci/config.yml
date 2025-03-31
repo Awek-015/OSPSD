@@ -1,32 +1,21 @@
 version: 2.1
 
-orbs:
-  python: circleci/python@2.1
-
-commands:
-  setup-env:
+jobs:
+  lint:
+    docker:
+      - image: cimg/python:3.11
     steps:
       - checkout
-      - python/install-packages:
-          pkg-manager: pip
-          packages:
-            - uv
       - run:
-          name: Setup environment with uv
+          name: Install dependencies
           command: |
+            pip install uv
             uv venv
             . .venv/bin/activate
             uv pip install ruff mypy pytest pytest-cov
             uv pip install -e mail_api
             uv pip install -e mail_gmail_impl
             uv pip install -e tests
-
-jobs:
-  lint:
-    docker:
-      - image: cimg/python:3.11
-    steps:
-      - setup-env
       - run:
           name: Run ruff linter
           command: |
@@ -42,7 +31,17 @@ jobs:
     docker:
       - image: cimg/python:3.11
     steps:
-      - setup-env
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            pip install uv
+            uv venv
+            . .venv/bin/activate
+            uv pip install ruff mypy pytest pytest-cov
+            uv pip install -e mail_api
+            uv pip install -e mail_gmail_impl
+            uv pip install -e tests
       - run:
           name: Run tests with coverage
           command: |
