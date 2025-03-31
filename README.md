@@ -12,23 +12,25 @@ This project defines a standardized API for interacting with Gmail. It is organi
 
 ## Project Scope
 
-### 🌟 Minimum Viable Product (MVP)
+### Minimum Viable Product (MVP)
 
 - Read Gmail inbox messages
 - Send simple emails
 - Delete emails
 - Access standard message fields (sender, recipient, subject, body, etc.)
+- Support for email attachments
 
-### ✅ In Scope
+### In Scope
 
 - Basic email operations (read, send, delete)
 - Gmail-specific client implementation
 - Interface abstraction and dependency injection
 - Interface mocking tests
+- Attachments support
 
-### ❌ Out of Scope
+### Out of Scope
 
-- Attachments, CC/BCC, filtering, or search
+- CC/BCC, filtering, or search
 - Authentication flow (assumes valid credentials)
 - Multi-provider support
 - Folder/label management
@@ -53,25 +55,41 @@ class Message(Protocol):
     def body(self) -> str: ...
 ```
 
+### `Attachment` Interface
+
+```python
+class Attachment(Protocol):
+    @property
+    def filename(self) -> str: ...
+    @property
+    def content_type(self) -> str: ...
+    @property
+    def data(self) -> bytes: ...
+```
+
 ### `Client` Interface
 
 ```python
 class Client(Protocol):
     def get_messages(self) -> Iterator[Message]: ...
+    def get_message(self, message_id: str) -> Optional[Message]: ...
     def send_message(self, to: str, subject: str, body: str) -> bool: ...
     def delete_message(self, message_id: str) -> bool: ...
 ```
 
-### Factory Function
+### Factory Functions
 
 ```python
 def get_client() -> Client:
+    ...
+
+def create_attachment(filename: str, data: bytes, content_type: Optional[str] = None) -> Attachment:
     ...
 ```
 
 ## Testing
 
-- Interface tests are written using `unittest.mock`.
+- Tests are written using the `pytest` framework, with `unittest.mock` used to mock interface definitions.
 - Each test validates return types and behaviors as defined in the interface.
 
 Example:
@@ -118,6 +136,11 @@ for msg in client.get_messages():
     print(f"{msg.subject} from {msg.from_}")
 
 client.send_message("user@example.com", "Subject", "Body")
+
+# Create and attach a file
+with open("document.pdf", "rb") as f:
+    data = f.read()
+    attachment = mail_api.create_attachment("document.pdf", data)
 ```
 
 ## Development Workflow
