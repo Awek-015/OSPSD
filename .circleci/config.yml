@@ -1,3 +1,22 @@
+version: 2.1
+
+orbs:
+  python: circleci/python@1.2
+
+commands:
+  setup-env:
+    steps:
+      - checkout
+      - run:
+          name: Setup Python and install dependencies
+          command: |
+            pip install uv
+            uv venv
+            uv pip install --group dev
+            uv pip install -e mail_api
+            uv pip install -e mail_gmail_impl
+            uv pip install -e tests
+
 jobs:
   lint:
     docker:
