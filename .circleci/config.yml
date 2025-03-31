@@ -13,7 +13,10 @@ commands:
             pip install uv
             uv venv
             . .venv/bin/activate
-            uv pip install
+            uv pip install --dev
+            uv pip install -e mail_api
+            uv pip install -e mail_gmail_impl
+            uv pip install -e tests
 
 jobs:
   test:
