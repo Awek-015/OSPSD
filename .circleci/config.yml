@@ -1,35 +1,22 @@
-version: 2.1
-
-orbs:
-  python: circleci/python@1.2
-
-commands:
-  setup-env:
-    steps:
-      - checkout
-      - run:
-          name: Setup Python and install dependencies
-          command: |
-            pip install uv
-            uv venv
-            uv pip install --group dev
-            uv pip install -e mail_api
-            uv pip install -e mail_gmail_impl
-            uv pip install -e tests
-
 jobs:
-  test:
+  lint:
     docker:
       - image: cimg/python:3.11
     steps:
       - setup-env
       - run:
-          name: Run static analysis (ruff & mypy)
+          name: Run ruff and mypy
           command: |
             uv run ruff check .
             uv run mypy mail_api mail_gmail_impl
+
+  unit-test:
+    docker:
+      - image: cimg/python:3.11
+    steps:
+      - setup-env
       - run:
-          name: Run tests with coverage
+          name: Run pytest with coverage
           command: |
             mkdir -p test-results
             uv run pytest tests/src/tests \
@@ -49,4 +36,5 @@ jobs:
 workflows:
   test-all:
     jobs:
-      - test
+      - lint
+      - unit-test
