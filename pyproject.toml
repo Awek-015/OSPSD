@@ -16,6 +16,15 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/calculator", "src/logger", "src/notifier"]
 
+[tool.uv]
+dev-dependencies = [
+    "pytest",
+    "mypy",
+    "ruff",
+    "coverage",
+    "pytest-cov"
+]
+
 [tool.pytest.ini_options]
 testpaths = ["src", "tests/integration_tests", "tests/end_to_end_tests"]
 python_files = ["test_*.py"]

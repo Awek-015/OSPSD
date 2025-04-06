@@ -126,3 +126,7 @@ venv/
 .vscode/
 .idea/
 .cursor/
+
+uv.lock
+
+test-results/
