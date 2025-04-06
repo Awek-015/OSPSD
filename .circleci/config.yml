@@ -146,14 +146,14 @@ workflows:
     jobs:
       - static_analysis
       - unit_tests:
-        requires:
-          - static_analysis
+          requires:
+            - static_analysis
       - integration_tests:
-        requires:
-          - static_analysis
+          requires:
+            - static_analysis
       - end_to_end_tests:
-        requires:
-          - static_analysis
+          requires:
+            - static_analysis
       - coverage_report:
           requires:
             - unit_tests
