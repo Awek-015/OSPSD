@@ -16,7 +16,12 @@ jobs:
             pip install uv
             uv venv
             . .venv/bin/activate
-            uv pip install ruff mypy
+            uv pip install pytest pytest-cov mypy ruff coverage
+            uv pip install -e .
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .venv
       - run:
           name: Run static analysis (ruff & mypy)
           command: |
@@ -29,18 +34,12 @@ jobs:
       - image: python:3.10
     steps:
       - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            pip install uv
-            uv venv
-            . .venv/bin/activate
-            uv pip install pytest pytest-cov mypy ruff coverage
-            uv pip install -e .
+      - attack_workspace:
+          at: /workspace
       - run:
           name: Run unit tests
           command: |
-            . .venv/bin/activate
+            . /workspace/.venv/bin/activate
             mkdir -p test-results/unit
             pytest src/calculator/tests/ src/logger/tests/ src/notifier/tests/ --cov=src --junitxml=test-results/unit/results.xml
             coverage report -m
@@ -59,18 +58,12 @@ jobs:
       - image: python:3.10
     steps:
       - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            pip install uv
-            uv venv
-            . .venv/bin/activate
-            uv pip install pytest pytest-cov mypy ruff coverage
-            uv pip install -e .
+      - attach_workspace:
+          at: /workspace
       - run:
           name: Run integration tests
           command: |
-            . .venv/bin/activate
+            . /workspace/.venv/bin/activate
             mkdir -p test-results/integration
             pytest tests/integration_tests/ --cov=src --junitxml=test-results/integration/results.xml
             coverage report -m
@@ -89,18 +82,12 @@ jobs:
       - image: python:3.10
     steps:
       - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            pip install uv
-            uv venv
-            . .venv/bin/activate
-            uv pip install pytest pytest-cov mypy ruff coverage
-            uv pip install -e .
+      - attach_workspace:
+          at: /workspace
       - run:
           name: Run end-to-end tests
           command: |
-            . .venv/bin/activate
+            . /workspace/.venv/bin/activate
             mkdir -p test-results/e2e
             pytest tests/end_to_end_tests/ --cov=src --junitxml=test-results/e2e/results.xml
             coverage report -m
@@ -119,18 +106,12 @@ jobs:
       - image: python:3.10
     steps:
       - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            pip install uv
-            uv venv
-            . .venv/bin/activate
-            uv pip install pytest pytest-cov mypy ruff coverage
-            uv pip install -e .
+      - attach_workspace:
+          at: /workspace
       - run:
           name: Run all tests and generate coverage report
           command: |
-            . .venv/bin/activate
+            . /workspace/.venv/bin/activate
             mkdir -p test-results/all
             pytest --cov=src src/*/tests/ tests/integration_tests/ tests/end_to_end_tests/ --junitxml=test-results/all/results.xml
             coverage report -m
