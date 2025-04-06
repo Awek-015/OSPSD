@@ -11,8 +11,8 @@ jobs:
     steps:
       - checkout
       - run:
-        name: Install dependencies
-        command: |
+          name: Install dependencies
+          command: |
             pip install uv
             uv venv
             . .venv/bin/activate
