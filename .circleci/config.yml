@@ -34,7 +34,7 @@ jobs:
       - image: python:3.10
     steps:
       - checkout
-      - attack_workspace:
+      - attach_workspace:
           at: /workspace
       - run:
           name: Run unit tests
