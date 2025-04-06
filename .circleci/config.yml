@@ -35,11 +35,11 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: /workspace
+          at: .
       - run:
           name: Run unit tests
           command: |
-            . /workspace/.venv/bin/activate
+            . ./.venv/bin/activate
             pip freeze
             mkdir -p test-results/unit
             pytest src/calculator/tests/ src/logger/tests/ src/notifier/tests/ --cov=src --junitxml=test-results/unit/results.xml
@@ -60,11 +60,11 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: /workspace
+          at: .
       - run:
           name: Run integration tests
           command: |
-            . /workspace/.venv/bin/activate
+            . ./.venv/bin/activate
             mkdir -p test-results/integration
             pytest tests/integration_tests/ --cov=src --junitxml=test-results/integration/results.xml
             coverage report -m
@@ -84,11 +84,11 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: /workspace
+          at: .
       - run:
           name: Run end-to-end tests
           command: |
-            . /workspace/.venv/bin/activate
+            . ./.venv/bin/activate
             mkdir -p test-results/e2e
             pytest tests/end_to_end_tests/ --cov=src --junitxml=test-results/e2e/results.xml
             coverage report -m
@@ -108,11 +108,11 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: /workspace
+          at: .
       - run:
           name: Run all tests and generate coverage report
           command: |
-            . /workspace/.venv/bin/activate
+            . ./.venv/bin/activate
             mkdir -p test-results/all
             pytest --cov=src src/*/tests/ tests/integration_tests/ tests/end_to_end_tests/ --junitxml=test-results/all/results.xml
             coverage report -m
