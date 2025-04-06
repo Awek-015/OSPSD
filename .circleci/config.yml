@@ -40,6 +40,7 @@ jobs:
           name: Run unit tests
           command: |
             . /workspace/.venv/bin/activate
+            pip freeze
             mkdir -p test-results/unit
             pytest src/calculator/tests/ src/logger/tests/ src/notifier/tests/ --cov=src --junitxml=test-results/unit/results.xml
             coverage report -m
