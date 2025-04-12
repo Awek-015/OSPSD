@@ -75,16 +75,14 @@ class TestGmailAttachment(unittest.TestCase):
 
     def test_content_type_fallback(self):
         """Test fallback behavior when mimeType is missing or unrecognized."""
-        from unittest.mock import patch
-
+        # Simulate an attachment with no mimeType and unknown file extension
         attachment_part = {
-            "filename": "unknown.abc",
+            "filename": "unknown.thiscannotbeamimetype",
             "body": {"data": ""},
         }
 
-        with patch("mail_gmail_impl.gmail_attachment.mimetypes.guess_type", return_value=(None, None)):
-            attachment = GmailAttachment(attachment_part)
-
+        attachment = GmailAttachment(attachment_part)
+        # Should fallback to 'application/octet-stream'
         assert attachment.content_type == "application/octet-stream"
 
 
