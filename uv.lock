@@ -313,6 +313,10 @@ source = { virtual = "." }
 dev = [
     { name = "black" },
     { name = "coverage" },
+    { name = "google-api-python-client" },
+    { name = "google-auth" },
+    { name = "google-auth-oauthlib" },
+    { name = "html2text" },
     { name = "mypy" },
     { name = "pytest" },
     { name = "pytest-cov" },
@@ -325,6 +329,10 @@ dev = [
 dev = [
     { name = "black", specifier = ">=24.8.0" },
     { name = "coverage", specifier = ">=7.5.0" },
+    { name = "google-api-python-client", specifier = ">=2.125.0" },
+    { name = "google-auth", specifier = ">=2.29.0" },
+    { name = "google-auth-oauthlib", specifier = ">=1.2.0" },
+    { name = "html2text", specifier = ">=2020.1.16" },
     { name = "mypy", specifier = ">=1.11.2" },
     { name = "pytest", specifier = ">=8.0.0" },
     { name = "pytest-cov", specifier = ">=4.1.0" },
