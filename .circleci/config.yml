@@ -10,7 +10,8 @@ commands:
       - run:
           name: Setup Python and install dependencies
           command: |
-            pip install uv
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+            export PATH="$HOME/.local/bin:$PATH"
             uv venv
             uv pip install --group dev
             uv pip install -e mail_api
