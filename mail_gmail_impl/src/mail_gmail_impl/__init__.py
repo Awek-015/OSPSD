@@ -59,4 +59,8 @@ __all__ = [
     "GmailAttachment",
     "get_gmail_client",
     "create_gmail_attachment",
+    "Message",
+    "Attachment",
+    "Client",
+    "create_attachment",
 ]

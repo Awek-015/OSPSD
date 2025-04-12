@@ -1,5 +1,6 @@
 from mail_api import Attachment
 import base64
+import binascii
 import mimetypes
 
 
@@ -62,5 +63,5 @@ class GmailAttachment(Attachment):
 
             self._data_cache = base64.b64decode(body_data)
             return self._data_cache
-        except base64.binascii.Error:
+        except binascii.Error:
             return b""

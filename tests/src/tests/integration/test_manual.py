@@ -1,7 +1,6 @@
 """Manual test for Gmail client implementation"""
 
 import os
-import sys
 from mail_gmail_impl import get_gmail_client
 
 

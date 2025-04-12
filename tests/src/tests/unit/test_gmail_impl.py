@@ -1,6 +1,5 @@
 import unittest
 from unittest.mock import patch, MagicMock
-import pytest
 from mail_api import Message, Attachment, Client
 from mail_gmail_impl import (
     GmailClient,
