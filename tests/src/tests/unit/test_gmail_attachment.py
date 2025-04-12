@@ -82,7 +82,7 @@ class TestGmailAttachment(unittest.TestCase):
             "body": {"data": ""},
         }
 
-        with patch("mimetypes.guess_type", return_value=(None, None)):
+        with patch("mail_gmail_impl.gmail_attachment.mimetypes.guess_type", return_value=(None, None)):
             attachment = GmailAttachment(attachment_part)
 
         assert attachment.content_type == "application/octet-stream"
