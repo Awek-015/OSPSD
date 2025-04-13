@@ -3,7 +3,7 @@
 import pytest
 import os
 from mail_api import Message, Client
-from mail_gmail_impl import get_gmail_client
+from mail_gmail_impl import get_gmail_client, create_gmail_attachment
 
 # Skip all tests if SKIP_LIVE_TESTS environment variable is set
 pytestmark = pytest.mark.skipif(
@@ -51,7 +51,7 @@ def test_send_message(gmail_client):
     This test is marked as xfail since it requires manual verification.
     """
     # Get user email for testing (can be configured via env var)
-    test_email = "hz3575@nyu.edu"
+    test_email = os.getenv("TEST_EMAIL")
     if not test_email:
         pytest.skip("TEST_EMAIL environment variable not set")
 
@@ -62,4 +62,29 @@ def test_send_message(gmail_client):
         body="This is an automated integration test. Please ignore.",
     )
 
+    assert result is True
+
+
+@pytest.mark.xfail(reason="Requires manual verification")
+def test_send_message_with_attachments(gmail_client):
+    """Test sending a message with attachments."""
+
+    test_email = os.getenv("TEST_EMAIL")
+    if not test_email:
+        pytest.skip("TEST_EMAIL environment variable not set")
+
+    attachment_data = b"This is a test attachment content."
+    attachment = create_gmail_attachment(
+        filename="test_attachment.txt",
+        data=attachment_data,
+        content_type="text/plain"
+    )
+    
+    result = gmail_client.send_message(
+        to=test_email,
+        subject="Integration Test - Gmail API Attachment",
+        body="This is an automated integration test (with attachment). Please ignore.",
+        attachments=[attachment]
+    )
+    
     assert result is True
