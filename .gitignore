@@ -132,3 +132,4 @@ credentials.json
 token.json
 
 test-results/
+integration-results/
