@@ -23,7 +23,7 @@ def get_gmail_client(credentials_file=None, token_file=None) -> Client:
 
 # Implement create_attachment factory function
 def create_gmail_attachment(
-    filename: str, data: bytes, content_type=None
+    filename: str, data: bytes, content_type=None, service=None, message_id=None,
 ) -> Attachment:
     """Create a Gmail attachment.
 
@@ -31,6 +31,8 @@ def create_gmail_attachment(
         filename: Name of the attachment file
         data: Binary content of the attachment
         content_type: MIME type of the content (will be guessed if not provided)
+        service: Gmail API service client (required for large attachments)
+        message_id: The ID of the message the attachment belongs to
 
     Returns:
         A GmailAttachment object
@@ -38,7 +40,11 @@ def create_gmail_attachment(
     import mimetypes
 
     # Encode binary data to base64 string (Gmail API format)
-    encoded_data = base64.urlsafe_b64encode(data).decode("ascii")
+    if data is not None:
+        encoded_data = base64.urlsafe_b64encode(data).decode("ascii")
+        body = {"data": encoded_data}
+    else:
+        body = {"attachmentId": "PLACEHOLDER"}
 
     # Create a simple Gmail attachment part structure
     attachment_part = {
@@ -46,10 +52,10 @@ def create_gmail_attachment(
         "mimeType": content_type
         or mimetypes.guess_type(filename)[0]
         or "application/octet-stream",
-        "body": {"data": encoded_data},
+        "body": body,
     }
 
-    return GmailAttachment(attachment_part)
+    return GmailAttachment(attachment_part, service=service, message_id=message_id)
 
 
 # Export public interface

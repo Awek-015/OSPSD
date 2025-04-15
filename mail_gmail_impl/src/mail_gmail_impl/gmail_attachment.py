@@ -7,7 +7,7 @@ import mimetypes
 class GmailAttachment(Attachment):
     """Implementation of the Attachment interface for Gmail."""
 
-    def __init__(self, attachment_part):
+    def __init__(self, attachment_part, service=None, message_id=None):
         """Initialize a Gmail attachment.
 
         Args:
@@ -17,6 +17,8 @@ class GmailAttachment(Attachment):
         self._filename = attachment_part.get("filename", "")
         self._mime_type = attachment_part.get("mimeType", "")
         self._data_cache = None
+        self._service = service
+        self._message_id = message_id
 
     @property
     def filename(self) -> str:
@@ -44,14 +46,21 @@ class GmailAttachment(Attachment):
             attachment_id = self._attachment_part.get("body", {}).get(
                 "attachmentId", ""
             )
-            if not attachment_id:
+            if attachment_id and self._service and self._message_id:
+                try:
+                    attachment = (
+                        self._service.users()
+                        .messages()
+                        .attachments()
+                        .get(userId="me", messageId=self._message_id, id=attachment_id)
+                        .execute()
+                    )
+                    body_data = attachment.get("data", "")
+                except Exception as e:
+                    print(f"Error occured while fetching large attachments: {e}")
+                    return b""
+            else:
                 return b""
-
-            # For large attachments, we would need to fetch using attachmentId
-            # This requires an API call, which would be implemented here
-            # using the service client that should be passed to the constructor
-            # For now, we'll return empty as the interface doesn't support fetching by ID
-            return b""
 
         # Gmail API base64 encoding uses URL-safe alphabet
         try:

@@ -1,8 +1,11 @@
-from mail_api import Client, Message
+from mail_api import Client, Message, Attachment
 from typing import Iterator, Optional
 import os.path
 import base64
 from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -94,12 +97,31 @@ class GmailClient(Client):
         except HttpError:
             return None
 
-    def send_message(self, to: str, subject: str, body: str) -> bool:
+    def send_message(self, to: str, subject: str, body: str, attachments: Optional[list[Attachment]] = None) -> bool:
         """Send an email message."""
         try:
-            message = MIMEText(body)
+            message = MIMEMultipart()
             message["to"] = to
             message["subject"] = subject
+
+            message.attach(MIMEText(body, "plain"))
+
+            if attachments:
+                for attachment in attachments:
+                    mime_attachment = MIMEBase(
+                        *attachment.content_type.split("/", 1)
+                    ) if "/" in attachment.content_type else MIMEBase("application", "octet-stream")
+                    
+                    mime_attachment.set_payload(attachment.data)
+                    
+                    encoders.encode_base64(mime_attachment)
+                    
+                    mime_attachment.add_header(
+                        "Content-Disposition",
+                        f"attachment; filename={attachment.filename}",
+                    )
+                    
+                    message.attach(mime_attachment)
 
             # Encode the message
             encoded_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
