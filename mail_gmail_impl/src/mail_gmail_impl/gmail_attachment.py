@@ -2,6 +2,10 @@ from mail_api import Attachment
 import base64
 import binascii
 import mimetypes
+import logging
+
+# Set up logger
+logger = logging.getLogger(__name__)
 
 
 class GmailAttachment(Attachment):
@@ -12,6 +16,8 @@ class GmailAttachment(Attachment):
 
         Args:
             attachment_part: A Gmail API message part representing an attachment
+            service: Gmail API service client (required for large attachments)
+            message_id: The ID of the message the attachment belongs to
         """
         self._attachment_part = attachment_part
         self._filename = attachment_part.get("filename", "")
@@ -57,7 +63,9 @@ class GmailAttachment(Attachment):
                     )
                     body_data = attachment.get("data", "")
                 except Exception as e:
-                    print(f"Error occured while fetching large attachments: {e}")
+                    logger.error(
+                        f"Error occurred while fetching large attachments: {e}"
+                    )
                     return b""
             else:
                 return b""
@@ -72,5 +80,6 @@ class GmailAttachment(Attachment):
 
             self._data_cache = base64.b64decode(body_data)
             return self._data_cache
-        except binascii.Error:
+        except binascii.Error as e:
+            logger.error(f"Error decoding attachment data: {e}")
             return b""

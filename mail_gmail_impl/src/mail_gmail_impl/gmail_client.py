@@ -2,6 +2,8 @@ from mail_api import Client, Message, Attachment
 from typing import Iterator, Optional
 import os.path
 import base64
+import json
+import logging
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
@@ -14,6 +16,9 @@ from googleapiclient.discovery import build  # type: ignore
 from googleapiclient.errors import HttpError  # type: ignore
 
 from .gmail_message import GmailMessage
+
+# Set up logger
+logger = logging.getLogger(__name__)
 
 
 class GmailClient(Client):
@@ -39,9 +44,12 @@ class GmailClient(Client):
         creds = None
         # The file token.json stores the user's access and refresh tokens
         if os.path.exists(self.token_file):
-            creds = Credentials.from_authorized_user_info(
-                eval(open(self.token_file).read())
-            )
+            try:
+                with open(self.token_file, "r") as token_file:
+                    creds_info = json.load(token_file)
+                    creds = Credentials.from_authorized_user_info(creds_info)
+            except (json.JSONDecodeError, ValueError) as e:
+                logger.error(f"Error loading token file: {e}")
 
         # If there are no (valid) credentials available, let the user log in.
         if not creds or not creds.valid:
@@ -54,7 +62,7 @@ class GmailClient(Client):
                 creds = flow.run_local_server(port=0)
             # Save the credentials for the next run
             with open(self.token_file, "w") as token:
-                token.write(str(creds.to_json()))
+                token.write(creds.to_json())
 
         return build("gmail", "v1", credentials=creds)
 
@@ -78,7 +86,7 @@ class GmailClient(Client):
                     yield msg
 
         except HttpError as error:
-            print(f"An error occurred: {error}")
+            logger.error(f"An error occurred while fetching messages: {error}")
 
     def get_message(self, message_id: str) -> Optional[Message]:
         """Retrieve a specific message by ID."""
@@ -94,10 +102,17 @@ class GmailClient(Client):
                 .execute()
             )
             return GmailMessage(message)
-        except HttpError:
+        except HttpError as error:
+            logger.error(f"Error fetching message {message_id}: {error}")
             return None
 
-    def send_message(self, to: str, subject: str, body: str, attachments: Optional[list[Attachment]] = None) -> bool:
+    def send_message(
+        self,
+        to: str,
+        subject: str,
+        body: str,
+        attachments: Optional[list[Attachment]] = None,
+    ) -> bool:
         """Send an email message."""
         try:
             message = MIMEMultipart()
@@ -108,19 +123,21 @@ class GmailClient(Client):
 
             if attachments:
                 for attachment in attachments:
-                    mime_attachment = MIMEBase(
-                        *attachment.content_type.split("/", 1)
-                    ) if "/" in attachment.content_type else MIMEBase("application", "octet-stream")
-                    
+                    mime_attachment = (
+                        MIMEBase(*attachment.content_type.split("/", 1))
+                        if "/" in attachment.content_type
+                        else MIMEBase("application", "octet-stream")
+                    )
+
                     mime_attachment.set_payload(attachment.data)
-                    
+
                     encoders.encode_base64(mime_attachment)
-                    
+
                     mime_attachment.add_header(
                         "Content-Disposition",
                         f"attachment; filename={attachment.filename}",
                     )
-                    
+
                     message.attach(mime_attachment)
 
             # Encode the message
@@ -135,7 +152,7 @@ class GmailClient(Client):
             ).execute()
             return True
         except Exception as error:
-            print(f"An error occurred: {error}")
+            logger.error(f"An error occurred while sending message: {error}")
             return False
 
     def delete_message(self, message_id: str) -> bool:
@@ -143,5 +160,6 @@ class GmailClient(Client):
         try:
             self.service.users().messages().trash(userId="me", id=message_id).execute()
             return True
-        except HttpError:
+        except HttpError as error:
+            logger.error(f"Error deleting message {message_id}: {error}")
             return False

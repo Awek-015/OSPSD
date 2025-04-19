@@ -1,5 +1,9 @@
 from mail_api import Message
-import html2text
+import html2text  # type: ignore
+import logging
+
+# Set up logger
+logger = logging.getLogger(__name__)
 
 
 class GmailMessage(Message):
@@ -9,17 +13,16 @@ class GmailMessage(Message):
         """Initialize a Gmail message.
 
         Args:
-            message_data: A Gmail API message resource
+            message_data: A Gmail API message object
         """
         self._message_data = message_data
+        self._body_cache = None
+        self._html_converter = html2text.HTML2Text()
+        self._html_converter.ignore_links = False
         self._headers = {
             header["name"].lower(): header["value"]
             for header in message_data.get("payload", {}).get("headers", [])
         }
-        self._html_converter = html2text.HTML2Text()
-        self._html_converter.ignore_links = False
-        self._html_converter.ignore_images = True
-        self._body_cache = None
 
     @property
     def id(self) -> str:
@@ -100,5 +103,6 @@ class GmailMessage(Message):
         try:
             decoded_data = base64.b64decode(body_data).decode("utf-8")
             return decoded_data
-        except (UnicodeDecodeError, base64.binascii.Error):
+        except (UnicodeDecodeError, base64.binascii.Error) as e:
+            logger.error(f"Error decoding message body: {e}")
             return ""

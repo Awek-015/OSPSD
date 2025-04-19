@@ -10,6 +10,7 @@ This package implements the `mail_api` interfaces for interacting with Gmail.
 - Sending simple text emails
 - Deleting emails
 - Supporting email attachments
+- Built-in logging system
 
 ## Installation
 
@@ -32,6 +33,13 @@ pip install -e .
 
 ```python
 from mail_gmail_impl import get_gmail_client
+import logging
+
+# Configure logging (optional but recommended)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 
 # Create a Gmail client (first time will open browser for auth)
 client = get_gmail_client()
@@ -63,6 +71,24 @@ print(f"Attachment content type: {attachment.content_type}")
 ## Authentication
 
 The first time you run the client, it will prompt you to authorize access to your Gmail account through a browser. After authorization, a token will be saved to `token.json` for future use.
+
+## Logging
+
+The library uses Python's standard logging module. You can configure the logging level and handlers in your application:
+
+```python
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,  # Set to logging.DEBUG for more detailed logs
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(),  # Console output
+        logging.FileHandler('gmail_api.log')  # File output
+    ]
+)
+```
 
 ## Limitations
 
