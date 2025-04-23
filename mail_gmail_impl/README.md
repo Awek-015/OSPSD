@@ -15,7 +15,7 @@ This package implements the `mail_api` interfaces for interacting with Gmail.
 ## Installation
 
 ```bash
-pip install -e .
+uv pip install -e .
 ```
 
 ## Setup
