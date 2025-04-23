@@ -10,7 +10,8 @@ commands:
       - run:
           name: Setup Python and install dependencies
           command: |
-            pip install uv
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+            export PATH="$HOME/.local/bin:$PATH"
             uv venv
             uv pip install --group dev
             uv pip install -e mail_api
@@ -35,12 +36,12 @@ jobs:
     steps:
       - setup-env
       - run:
-          name: Run pytest with coverage
+          name: Run unit tests with coverage
           command: |
             mkdir -p test-results
-            uv run pytest tests/src/tests \
+            uv run pytest tests/src/tests/unit/ \
               --cov=mail_api --cov=mail_gmail_impl \
-              --junitxml=test-results/results.xml
+              --junitxml=test-results/unit-results.xml
             uv run coverage report -m
             uv run coverage html -d coverage-report
       - store_test_results:
@@ -52,8 +53,28 @@ jobs:
           path: coverage-report
           destination: coverage-html
 
+  integration-test:
+    docker:
+      - image: cimg/python:3.11
+    steps:
+      - setup-env
+      - run:
+          name: Run integration tests (skipped by default)
+          command: |
+            mkdir -p integration-results
+            SKIP_LIVE_TESTS=1 uv run pytest tests/src/tests/integration/ -v \
+              --junitxml=integration-results/integration-results.xml
+          environment:
+            SKIP_LIVE_TESTS: "1"
+      - store_test_results:
+          path: integration-results
+      - store_artifacts:
+          path: integration-results
+          destination: integration-test-results
+
 workflows:
   test-all:
     jobs:
       - lint
       - unit-test
+      - integration-test

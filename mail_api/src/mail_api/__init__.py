@@ -75,13 +75,14 @@ class Client(Protocol):
         """
         raise NotImplementedError()
 
-    def send_message(self, to: str, subject: str, body: str) -> bool:
+    def send_message(self, to: str, subject: str, body: str, attachments: Optional[list[Attachment]] = None) -> bool:
         """Send an email message.
 
         Args:
             to: Recipient email address
             subject: Email subject
             body: Email body content
+            attachments: Optional list of Attachment objects
 
         Returns:
             True if message was sent successfully, False otherwise
