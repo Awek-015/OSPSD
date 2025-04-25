@@ -16,14 +16,18 @@ dev-dependencies = [
     "google-api-python-client>=2.125.0",
     "google-auth>=2.29.0",
     "google-auth-oauthlib>=1.2.0",
-    "html2text>=2020.1.16"
+    "html2text>=2020.1.16",
+    "requests",
+    "python-dotenv",
+    "google-generativeai"
 ]
 
 [tool.uv.workspace]
-members = ["mail_api", "mail_gmail_impl", "tests"]
+members = ["mail_api", "mail_gmail_impl", "ai_conversation_client", "tests"]
 
 [tool.pytest.ini_options]
 pythonpath = [
     "mail_api/src",
-    "mail_gmail_impl/src"
+    "mail_gmail_impl/src",
+    "ai_conversation_client/src"
 ]
