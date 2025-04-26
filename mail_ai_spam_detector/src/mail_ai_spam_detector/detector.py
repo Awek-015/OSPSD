@@ -1,10 +1,7 @@
 import csv
-import os
 from typing import List
 from mail_api import Message, Client
-from mail_gmail_impl import get_gmail_client
 from ai_conversation_client.client import AIConversationClient
-from ai_conversation_client.gemini_api_client import GeminiAPIClient
 
 
 class SpamDetector:
