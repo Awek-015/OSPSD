@@ -126,10 +126,3 @@ venv/
 .vscode/
 .idea/
 .cursor/
-
-# Google API credentials
-credentials.json
-token.json
-
-test-results/
-integration-results/
