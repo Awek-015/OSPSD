@@ -1,0 +1,31 @@
+[project]
+name = "ai_conversation_client"
+version = "0.1.0"
+description = "A flexible AI conversation client supporting multiple backend providers like Gemini."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+
+dependencies = [
+    "requests",
+    "python-dotenv",
+    "google-generativeai"
+]
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.21.0",
+    "mypy>=1.11.0",
+    "ruff>=0.6.8",
+    "coverage>=7.5.0"
+]
+
+[tool.pytest.ini_options]
+pythonpath = [
+    "src"
+]
+
+[build-system]
+requires = ["uv>=0.1.0"]
+build-backend = "uv.build"
