@@ -64,7 +64,8 @@ jobs:
           name: Run CI-friendly integration tests
           command: |
             mkdir -p mock-integration-results
-            uv run pytest tests/src/tests/integration/test_detector_ci.py -v \
+            uv run pytest tests/src/tests/integration/ -v \
+              -m ci_friendly \
               --cov=mail_ai_spam_detector \
               --junitxml=mock-integration-results/mock-integration-results.xml
             uv run coverage report -m
@@ -84,7 +85,7 @@ jobs:
           command: |
             mkdir -p live-integration-results
             SKIP_LIVE_TESTS=1 uv run pytest tests/src/tests/integration/ \
-              --exclude=test_detector_ci.py -v \
+              -m "not ci_friendly" -v \
               --junitxml=live-integration-results/live-integration-results.xml
           environment:
             SKIP_LIVE_TESTS: "1"

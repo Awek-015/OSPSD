@@ -3,9 +3,12 @@
 import os
 import pytest
 import tempfile
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 from mail_ai_spam_detector.detector import SpamDetector
 from mail_api import Message
+
+# Mark all tests in this file as CI-friendly
+pytestmark = pytest.mark.ci_friendly
 
 
 # Mock Gmail client class
