@@ -16,6 +16,8 @@ commands:
             uv pip install --group dev
             uv pip install -e mail_api
             uv pip install -e mail_gmail_impl
+            uv pip install -e ai_conversation_client
+            uv pip install -e mail_ai_spam_detector
             uv pip install -e tests
 
 jobs:
@@ -53,28 +55,49 @@ jobs:
           path: coverage-report
           destination: coverage-html
 
-  integration-test:
+  mock-integration-test:
     docker:
       - image: cimg/python:3.11
     steps:
       - setup-env
       - run:
-          name: Run integration tests (skipped by default)
+          name: Run CI-friendly integration tests
           command: |
-            mkdir -p integration-results
-            SKIP_LIVE_TESTS=1 uv run pytest tests/src/tests/integration/ -v \
-              --junitxml=integration-results/integration-results.xml
+            mkdir -p mock-integration-results
+            uv run pytest tests/src/tests/integration/test_detector_ci.py -v \
+              --cov=mail_ai_spam_detector \
+              --junitxml=mock-integration-results/mock-integration-results.xml
+            uv run coverage report -m
+      - store_test_results:
+          path: mock-integration-results
+      - store_artifacts:
+          path: mock-integration-results
+          destination: mock-integration-test-results
+
+  live-integration-test:
+    docker:
+      - image: cimg/python:3.11
+    steps:
+      - setup-env
+      - run:
+          name: Run live integration tests (skipped by default)
+          command: |
+            mkdir -p live-integration-results
+            SKIP_LIVE_TESTS=1 uv run pytest tests/src/tests/integration/ \
+              --exclude=test_detector_ci.py -v \
+              --junitxml=live-integration-results/live-integration-results.xml
           environment:
             SKIP_LIVE_TESTS: "1"
       - store_test_results:
-          path: integration-results
+          path: live-integration-results
       - store_artifacts:
-          path: integration-results
-          destination: integration-test-results
+          path: live-integration-results
+          destination: live-integration-test-results
 
 workflows:
   test-all:
     jobs:
       - lint
       - unit-test
-      - integration-test
+      - mock-integration-test
+      - live-integration-test
