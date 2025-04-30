@@ -1,5 +1,5 @@
 from mail_api import Client, Message, Attachment
-from typing import Iterator, Optional
+from typing import Iterator
 import os.path
 import base64
 import json
@@ -16,6 +16,7 @@ from googleapiclient.discovery import build  # type: ignore
 from googleapiclient.errors import HttpError  # type: ignore
 
 from .gmail_message import GmailMessage
+from .constants import GMAIL_API_SCOPES, DEFAULT_TOKEN_FILE, DEFAULT_CREDENTIALS_FILE
 
 # Set up logger
 logger = logging.getLogger(__name__)
@@ -24,9 +25,9 @@ logger = logging.getLogger(__name__)
 class GmailClient(Client):
     """Implementation of the Client interface for Gmail."""
 
-    SCOPES = ["https://www.googleapis.com/auth/gmail.modify"]
-    TOKEN_FILE = "token.json"
-    CREDENTIALS_FILE = "credentials.json"
+    SCOPES = GMAIL_API_SCOPES
+    TOKEN_FILE = DEFAULT_TOKEN_FILE
+    CREDENTIALS_FILE = DEFAULT_CREDENTIALS_FILE
 
     def __init__(self, credentials_file=None, token_file=None):
         """Initialize the Gmail client.
@@ -88,11 +89,11 @@ class GmailClient(Client):
         except HttpError as error:
             logger.error(f"An error occurred while fetching messages: {error}")
 
-    def get_message(self, message_id: str) -> Optional[Message]:
+    def get_message(self, message_id: str) -> Message | None:
         """Retrieve a specific message by ID."""
         return self._get_message_by_id(message_id)
 
-    def _get_message_by_id(self, message_id: str) -> Optional[Message]:
+    def _get_message_by_id(self, message_id: str) -> Message | None:
         """Helper method to get a message by ID."""
         try:
             message = (
@@ -111,7 +112,7 @@ class GmailClient(Client):
         to: str,
         subject: str,
         body: str,
-        attachments: Optional[list[Attachment]] = None,
+        attachments: list[Attachment] | None = None,
     ) -> bool:
         """Send an email message."""
         try:

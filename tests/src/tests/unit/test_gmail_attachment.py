@@ -1,4 +1,3 @@
-from unittest.mock import MagicMock
 from mail_gmail_impl import GmailAttachment
 
 
@@ -18,10 +17,10 @@ def test_small_attachment_data():
     assert attachment.data == b"Hello World"
 
 
-def test_large_attachment_data():
+def test_large_attachment_data(mocker):
     """Test handling of large attachments fetched via attachmentId and service."""
     # Create a mock Gmail service
-    mock_service = MagicMock()
+    mock_service = mocker.MagicMock()
     mock_attachment = {
         "data": "U29tZSBsYXJnZSBmaWxlIGNvbnRlbnQ="  # base64 for "Some large file content"
     }
