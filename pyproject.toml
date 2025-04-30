@@ -21,7 +21,8 @@ dev-dependencies = [
     "requests",
     "python-dotenv",
     "google-generativeai",
-    "pathlib"
+    "pathlib",
+    "types-requests>=2.32.0"
 ]
 
 [tool.uv.workspace]

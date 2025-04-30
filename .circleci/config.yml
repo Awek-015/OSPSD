@@ -28,7 +28,7 @@ jobs:
           name: Run ruff and mypy
           command: |
             uv run ruff check .
-            uv run mypy mail_api mail_gmail_impl
+            uv run mypy mail_api mail_gmail_impl ai_conversation_client mail_ai_spam_detector
 
   unit-test:
     docker:
