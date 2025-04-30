@@ -1,12 +1,10 @@
-try:
-    import pytest
+import importlib.util
+from mail_gmail_impl import GmailAttachment
 
-    has_pytest_mock = True
-except ImportError:
-    has_pytest_mock = False
+if not importlib.util.find_spec("pytest_mock"):
     from unittest.mock import MagicMock
 
-from mail_gmail_impl import GmailAttachment
+has_pytest_mock = importlib.util.find_spec("pytest_mock") is not None
 
 
 def test_small_attachment_data():
