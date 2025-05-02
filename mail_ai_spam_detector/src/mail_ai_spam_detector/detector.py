@@ -28,13 +28,17 @@ class SpamDetector:
             f"Body: {email.body}\n"
         )
 
-        response = self.ai_client.send_message(session_id, prompt)
-        content = response.get("content", "").strip()
-
         try:
+            response = self.ai_client.send_message(session_id, prompt)
+            content = response.get("content", "").strip()
             probability = float(content)
             return max(0.0, min(100.0, probability))  # Clamp to [0, 100]
-        except ValueError:
+        except (ValueError, KeyError, AttributeError):
+            # Parsing issue or unexpected response format
+            return 0.0
+        except Exception as e:
+            # broader issues like network and api error
+            print(f"Failed to analyze email {email.id}: {e}")
             return 0.0
 
     def detect_spam(self, output_csv: str, max_emails: int = 10) -> None:

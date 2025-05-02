@@ -138,3 +138,17 @@ def test_detect_spam(spam_detector):
         # Clean up
         if os.path.exists(output_path):
             os.unlink(output_path)
+
+
+def test_analyze_email_handles_exception(spam_detector, monkeypatch):
+    """Test exception handling in analyze_email."""
+    def fail_send_message(session_id, prompt):
+        raise RuntimeError("Simulated AI failure")
+
+    monkeypatch.setattr(spam_detector.ai_client, "send_message", fail_send_message)
+
+    email = spam_detector.crawl_emails()[0]
+    session_id = spam_detector.ai_client.start_new_session("test_user")
+    result = spam_detector.analyze_email(session_id, email)
+
+    assert result == 0.0
