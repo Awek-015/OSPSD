@@ -1,5 +1,10 @@
-from unittest.mock import MagicMock
+import importlib.util
 from mail_gmail_impl import GmailAttachment
+
+if not importlib.util.find_spec("pytest_mock"):
+    from unittest.mock import MagicMock
+
+has_pytest_mock = importlib.util.find_spec("pytest_mock") is not None
 
 
 def test_small_attachment_data():
@@ -18,37 +23,73 @@ def test_small_attachment_data():
     assert attachment.data == b"Hello World"
 
 
-def test_large_attachment_data():
-    """Test handling of large attachments fetched via attachmentId and service."""
-    # Create a mock Gmail service
-    mock_service = MagicMock()
-    mock_attachment = {
-        "data": "U29tZSBsYXJnZSBmaWxlIGNvbnRlbnQ="  # base64 for "Some large file content"
-    }
+if has_pytest_mock:
 
-    # Mock the Gmail API method chain to return the fake attachment
-    mock_service.users.return_value.messages.return_value.attachments.return_value.get.return_value.execute.return_value = (
-        mock_attachment
-    )
+    def test_large_attachment_data(mocker):
+        """Test handling of large attachments fetched via attachmentId and service."""
+        # Create a mock Gmail service
+        mock_service = mocker.MagicMock()
+        mock_attachment = {
+            "data": "U29tZSBsYXJnZSBmaWxlIGNvbnRlbnQ="  # base64 for "Some large file content"
+        }
 
-    attachment_part = {
-        "filename": "large_file.pdf",
-        "mimeType": "application/pdf",
-        "body": {"attachmentId": "att123"},
-    }
+        # Mock the Gmail API method chain to return the fake attachment
+        mock_service.users.return_value.messages.return_value.attachments.return_value.get.return_value.execute.return_value = (
+            mock_attachment
+        )
 
-    attachment = GmailAttachment(
-        attachment_part=attachment_part, service=mock_service, message_id="msg999"
-    )
+        attachment_part = {
+            "filename": "large_file.pdf",
+            "mimeType": "application/pdf",
+            "body": {"attachmentId": "att123"},
+        }
 
-    assert attachment.filename == "large_file.pdf"
-    assert attachment.content_type == "application/pdf"
-    assert attachment.data == b"Some large file content"
+        attachment = GmailAttachment(
+            attachment_part=attachment_part, service=mock_service, message_id="msg999"
+        )
 
-    # Verify that the service was called with the correct parameters
-    mock_service.users.return_value.messages.return_value.attachments.return_value.get.assert_called_once_with(
-        userId="me", messageId="msg999", id="att123"
-    )
+        assert attachment.filename == "large_file.pdf"
+        assert attachment.content_type == "application/pdf"
+        assert attachment.data == b"Some large file content"
+
+        # Verify that the service was called with the correct parameters
+        mock_service.users.return_value.messages.return_value.attachments.return_value.get.assert_called_once_with(
+            userId="me", messageId="msg999", id="att123"
+        )
+
+else:
+
+    def test_large_attachment_data():
+        """Test handling of large attachments fetched via attachmentId and service."""
+        # Create a mock Gmail service
+        mock_service = MagicMock()
+        mock_attachment = {
+            "data": "U29tZSBsYXJnZSBmaWxlIGNvbnRlbnQ="  # base64 for "Some large file content"
+        }
+
+        # Mock the Gmail API method chain to return the fake attachment
+        mock_service.users.return_value.messages.return_value.attachments.return_value.get.return_value.execute.return_value = (
+            mock_attachment
+        )
+
+        attachment_part = {
+            "filename": "large_file.pdf",
+            "mimeType": "application/pdf",
+            "body": {"attachmentId": "att123"},
+        }
+
+        attachment = GmailAttachment(
+            attachment_part=attachment_part, service=mock_service, message_id="msg999"
+        )
+
+        assert attachment.filename == "large_file.pdf"
+        assert attachment.content_type == "application/pdf"
+        assert attachment.data == b"Some large file content"
+
+        # Verify that the service was called with the correct parameters
+        mock_service.users.return_value.messages.return_value.attachments.return_value.get.assert_called_once_with(
+            userId="me", messageId="msg999", id="att123"
+        )
 
 
 def test_large_attachment_missing_service_or_id():

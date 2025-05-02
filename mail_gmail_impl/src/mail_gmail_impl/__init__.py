@@ -4,6 +4,7 @@ from mail_api import Message, Attachment, Client, create_attachment
 from .gmail_client import GmailClient
 from .gmail_message import GmailMessage
 from .gmail_attachment import GmailAttachment
+from .constants import GMAIL_API_SCOPES, DEFAULT_TOKEN_FILE, DEFAULT_CREDENTIALS_FILE
 import base64
 
 
@@ -23,7 +24,11 @@ def get_gmail_client(credentials_file=None, token_file=None) -> Client:
 
 # Implement create_attachment factory function
 def create_gmail_attachment(
-    filename: str, data: bytes, content_type=None, service=None, message_id=None,
+    filename: str,
+    data: bytes,
+    content_type=None,
+    service=None,
+    message_id=None,
 ) -> Attachment:
     """Create a Gmail attachment.
 
@@ -69,4 +74,7 @@ __all__ = [
     "Attachment",
     "Client",
     "create_attachment",
+    "GMAIL_API_SCOPES",
+    "DEFAULT_TOKEN_FILE",
+    "DEFAULT_CREDENTIALS_FILE",
 ]
